@@ -19,7 +19,6 @@ dependencies:
   - prompt-toolkit
   - psutil
   - pygments
-  - readline
   - setuptools
   - six
   - stack_data
