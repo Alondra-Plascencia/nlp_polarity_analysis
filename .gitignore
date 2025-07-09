@@ -2,5 +2,6 @@
 **/__pycache__
 /plots/*.pdf
 /data/*.csv
+/data/*.xlsx
 /environment/*.txt
 /modules/__pycache__
