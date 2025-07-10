@@ -5,6 +5,8 @@ Este proyecto fué realizado en el marco del Verano Delfín 2025 en Bogotá, Col
 
 ### 1 Stage 
 
+    - This stage is responsible for loading the headline and comment files. After loading, it cleans the alphanumeric characters and converts all text to lowercase for processing.
+
 ### 2 Stage 
 
 ### 3 Stage 
@@ -52,6 +54,39 @@ If you need to switch to another environment or deactivate it, simpy run:
 ```bash
 conda deactivate
 ```
+
+## File Format for CSV Files
+
+### Headline File (`titulares.csv`):
+The headline file should consist of two main columns:
+
++---------+----------------------------+
+| ID | Headline |
++---------+----------------------------+
+| 1 | "Breaking News: Event X!" |
+| 2 | "New Discoveries in Science"|
++---------+----------------------------+
+
+- **ID**: A unique identifier for each headline.
+- **Headline**: The text of the headline.
+
+### Comment File (`commentarios.csv`):
+The comment file should include an **ID column** to establish the relationship with the headlines file, followed by multiple columns of comments. Each comment will be placed horizontally, one comment per column:
+
++---------+------------------------------+----------------------------+----------------------------+
+| ID | Comment 1 | Comment 2 | Comment 3 |
++---------+------------------------------+----------------------------+----------------------------+
+| 1 | "Great news!" | "Can't wait for more info." | "So interesting!" |
+| 2 | "This is groundbreaking." | "I love this!" | "Science is amazing!" |
++---------+------------------------------+----------------------------+----------------------------+
+
+- **ID**: A unique identifier to link comments to the corresponding headline.
+- **Comment n**: Each column represents an individual comment related to the headline.
+
+---
+
+By following this format, the data can be easily loaded and processed for further analysis.
+
 
 ## Running the Clustering Script
 
