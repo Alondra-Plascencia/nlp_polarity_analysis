@@ -23,7 +23,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 
 #External Modules
-from module_data_path import df_data_path, plot_data_path
+from module_data_path import df_data_path, plot_data_path, import_csv
 from module_cleansing import remover_no_alfanumericos
 
 stages = [1]
@@ -33,11 +33,8 @@ def stage1():
     # data files directory path
     data_path = df_data_path()
 
-    titulares = os.path.join(data_path, 'titulares_prueba.csv')
-    comentarios = os.path.join(data_path, 'comentarios_prueba.csv')
-    
-    titulares_df = pd.read_csv(titulares, encoding='ISO-8859-1')
-    comentarios_df = pd.read_csv(comentarios, encoding='ISO-8859-1')
+    titulares_df = import_csv(data_path,'titulares_prueba.csv')
+    comentarios_df = import_csv(data_path,'comentarios_prueba.csv')
     
     titulares_df['Tweet'] = titulares_df['Tweet'].apply(remover_no_alfanumericos).str.lstrip().str.lower()
     
