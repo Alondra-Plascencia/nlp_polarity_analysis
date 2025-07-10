@@ -1,4 +1,6 @@
 from pathlib import Path
+import os
+import pandas as pd
 
 
 def df_data_path() -> Path:
@@ -33,3 +35,15 @@ def plot_data_path() -> Path:
         else:
             raise Exception("Plots directory not found")
         
+def import_csv(path,filename):
+    """
+    Imports a CSV file from the data directory
+
+    :param path: the path to the data directory
+    :param filename: the name of the CSV file
+    :return: the CSV file
+    """
+    
+    file = pd.read_csv(os.path.join(path, filename), encoding='ISO-8859-1')
+
+    return file
