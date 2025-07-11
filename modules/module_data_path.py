@@ -44,6 +44,6 @@ def import_csv(path,filename):
     :return: the CSV file
     """
     
-    file = pd.read_csv(os.path.join(path, filename), encoding='ISO-8859-1')
+    file = pd.read_csv(os.path.join(path, filename), encoding='UTF-8')
 
     return file
