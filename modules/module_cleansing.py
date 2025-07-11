@@ -7,9 +7,9 @@ import re
 import unicodedata2
 
 # Precompiled regular expression to optimize HTML tag removal
-remover = re.compile('<.*?>')
+remove = re.compile('<.*?>')
 
-def remover_html(text):
+def remove_html(text):
     """
     Removes HTML tags from the given text.
 
@@ -18,12 +18,9 @@ def remover_html(text):
     :param text: The input string containing HTML content.
     :return: The cleaned text with HTML tags removed.
     """
-    return re.sub(remover, '', text)
+    return re.sub(remove, '', text)
 
-# Definir la función para remover caracteres no alfanuméricos usando re y tambien numeros 
-# sueltos dado que en un analisis de sentimiento un numero suelto no genera mayor intensidad 
-# a la exprecion negativa o positiva
-def remover_no_alfanumericos(text):
+def remove_non_alphabetic(text):
     """
     Removes all non-alphabetic characters and isolated numbers from the text.
 
@@ -31,10 +28,6 @@ def remover_no_alfanumericos(text):
 
     :param text: The input string to be cleaned.
     :return: The cleaned string containing only alphabetic characters and spaces.
-    """
-    return re.sub(r'[^a-zA-Z]', ' ', text)
-    """
-    Reemplazar todo lo que no sea alfanumérico por un espacio
     """
     text = unicodedata2.normalize('NFC', text)
     return re.sub(r'[^a-zA-ZáéíóúÁÉÍÓÚñÑ]', ' ', text)
@@ -55,7 +48,7 @@ def clean_and_lowercase_columns(col):
         pd.Series: The cleaned column.
     """
     if isinstance(col, str):
-        return remover_no_alfanumericos(col).lower().lstrip()
+        return remove_non_alphabetic(col).lower().lstrip()
     return col
 
 def clean_and_lowercase_rows(row, start_col_index=2):
@@ -78,8 +71,5 @@ def clean_and_lowercase_rows(row, start_col_index=2):
     for col in row.index[start_col_index:]:
         if pd.notna(row[col]):  # Check that the value is not NaN
             # Apply transformations to non-NaN values
-            row[col] = remover_no_alfanumericos(str(row[col])).lstrip().lower()
+            row[col] = remove_non_alphabetic(str(row[col])).lstrip().lower()
     return row
-
-
-
