@@ -5,16 +5,27 @@ import os
 import pandas as pd
 import re
 
-# Definir la expresión regular fuera de la función para optimización
+# Precompiled regular expression to optimize HTML tag removal
 remover = re.compile('<.*?>')
 
-# Definir la función para eliminar etiquetas HTML
 def remover_html(text):
-    # Usar la expresión regular compilada para reemplazar etiquetas HTML por texto vacío
+    """
+    Removes HTML tags from the given text.
+
+    The function uses a precompiled regular expression to find and replace HTML tags with empty strings, effectively stripping any markup.
+
+    :param text: The input string containing HTML content.
+    :return: The cleaned text with HTML tags removed.
+    """
     return re.sub(remover, '', text)
 
-# Definir la función para remover caracteres no alfanuméricos usando re y tambien numeros sueltos dado que en un analisis de sentimiento un numero
-#suelto no genera mayor intensidad a la exprecion negativa o positiva
 def remover_no_alfanumericos(text):
-    # Reemplazar todo lo que no sea alfanumérico por un espacio
+    """
+    Removes all non-alphabetic characters and isolated numbers from the text.
+
+    This function replaces any character that is not a letter (a-z, A-Z) with a space. It is designed for sentiment analysis, where standalone numbers do not usually add significant positive or negative intensity to expressions.
+
+    :param text: The input string to be cleaned.
+    :return: The cleaned string containing only alphabetic characters and spaces.
+    """
     return re.sub(r'[^a-zA-Z]', ' ', text)
