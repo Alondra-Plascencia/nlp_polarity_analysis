@@ -24,7 +24,7 @@ import torch
 
 #External Modules
 from module_data_path import df_data_path, plot_data_path, import_csv
-from module_cleansing import remover_no_alfanumericos
+from module_cleansing import remover_no_alfanumericos, clean_and_lowercase_columns, clean_and_lowercase_rows
 
 stages = [1]
 
@@ -33,21 +33,17 @@ def stage1():
     # data files directory path
     data_path = df_data_path()
 
-    titulares_df = import_csv(data_path,'titulares_prueba.csv')
-    comentarios_df = import_csv(data_path,'comentarios_prueba.csv')
+    headliners_df = import_csv(data_path,'titulares_prueba.csv')
+    coments_df = import_csv(data_path,'comentarios_prueba.csv')
     
-    titulares_df['Tweet'] = titulares_df['Tweet'].apply(remover_no_alfanumericos).str.lstrip().str.lower()
-    
-    # Reemplaza 'titulares_df' con el DataFrame que estás utilizando
-    for index, row in comentarios_df.iterrows():  # Recorremos cada fila
-        for col in comentarios_df.columns[3:]:  # Recorremos las columnas a partir de la 3ra columna (índice 2)
-            if pd.notna(row[col]):  # Verifica que el valor no sea NaN
-                # Aplica las transformaciones a los valores que no son NaN
-                comentarios_df.at[index, col] = remover_no_alfanumericos(row[col]).lstrip().lower()
+
+    headliners_df['Tweet'] = headliners_df['Tweet'].apply(clean_and_lowercase_columns)
+    start_col_index = 3  # Assuming the first three columns are not comments
+    coments_df = coments_df.apply(clean_and_lowercase_rows, axis=1, start_col_index=start_col_index)
+
+    #print(headliners_df['Tweet'].head(10))
+    #print(coments_df.iloc[:, 3:].head(10))
         
-
-
-
 #Data Cleaning and Preprocessing
 def stage2(): 
     print("Stage 2")
