@@ -4,4 +4,5 @@
 /data/*.csv
 /data/*.xlsx
 /environment/*.txt
+/catalog/*.csv
 /modules/__pycache__
