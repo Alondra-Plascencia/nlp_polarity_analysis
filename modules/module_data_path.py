@@ -1,3 +1,7 @@
+# ====================================
+# Libraries
+# ====================================
+
 from pathlib import Path
 import os
 import pandas as pd
@@ -35,6 +39,23 @@ def plot_data_path() -> Path:
         else:
             raise Exception("Plots directory not found")
         
+
+def catalog_data_path() -> Path:
+    """
+    Returns the location of the catalog, allowing for script executions in subfolders without worrying about the
+    relative location of the catalog directory
+
+    :return: the path to the catalog folder
+    """
+    cwd = Path("..")
+    for folder in (cwd, cwd / "..", cwd / ".." / ".."):
+        data_folder = folder / "catalog"
+        if data_folder.exists() and data_folder.is_dir():
+            print("Catalog directory found in ", data_folder)
+            return data_folder
+        else:
+            raise Exception("Catalog directory not found")
+
 def import_csv(path,filename):
     """
     Imports a CSV file from the data directory
@@ -47,3 +68,28 @@ def import_csv(path,filename):
     file = pd.read_csv(os.path.join(path, filename), encoding='UTF-8')
 
     return file
+
+def save_dataframe_to_csv(df, folder_path, file_name):
+    """
+    Saves a pandas DataFrame as a CSV file in the specified folder with the given file name.
+
+    Parameters:
+    - df: pandas DataFrame to save
+    - folder_path: str or Path, path to the destination folder
+    - file_name: str, name of the CSV file (with or without '.csv')
+    """
+
+    # Ensure the file_name ends with .csv
+    if not file_name.endswith('.csv'):
+        file_name += '.csv'
+
+    # Create the folder if it doesn't exist
+    os.makedirs(folder_path, exist_ok=True)
+
+    # Build full path
+    full_path = os.path.join(folder_path, file_name)
+
+    # Save the DataFrame
+    df.to_csv(full_path, index=False)
+
+    print(f"DataFrame saved successfully at: {full_path}")
