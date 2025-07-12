@@ -28,12 +28,13 @@ import torch
 from module_data_path import df_data_path, plot_data_path, catalog_data_path, import_csv, save_dataframe_to_csv
 from module_cleansing import clean_and_lowercase_columns, clean_and_lowercase_rows
 from module_tokenization import remove_stopwords, stem_row
+from module_polarization import generate_sentiment_summary_df
 
 # ====================================
 # Configuration
 # ====================================
 
-stages = [2]  # Define the stages to run
+stages = [3]  # Define the stages to run
 
 start_col_index = 2  # Assuming the first two columns are not text (headliners or comments)
 
@@ -88,7 +89,33 @@ def stage2():
     
     # Save tokenized data
     save_dataframe_to_csv(data_df, catalog_path, 'tokenized_data')
+
+# ====================================
+# Stage 3: Data polarization
+# ====================================
+
+def stage3():
+    """
+    Loads the tokenized CSV, applies a pre-trained model for sentiment analysis,
+    and saves the results as CSV.
+    """
+    # Get catalog path
+    catalog_path = catalog_data_path()
     
+    # Load tokenized CSV
+    data_df = import_csv(catalog_path,'tokenized_data.csv')
+
+    # df es tu DataFrame original con ID, Headline y comentarios
+    summary_df = generate_sentiment_summary_df(data_df,
+                                          id_col='ID',
+                                          headline_col='Headliner',
+                                          start_col_index=3)
+    
+    # Optionally preview sentiment summary
+    #print(summary_df.head(20))
+    
+    # Save sentiment results
+    save_dataframe_to_csv(summary_df, catalog_path, 'polarized_data')
 
 # ====================================
 # Main
@@ -100,3 +127,5 @@ if __name__ == "__main__":
         stage1()
     elif 2 in stages:
         stage2()
+    elif 3 in stages:
+        stage3()
