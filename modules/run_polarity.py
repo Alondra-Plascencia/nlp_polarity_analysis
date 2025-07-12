@@ -1,52 +1,98 @@
-#Libraries
+# ====================================
+# Libraries
+# ====================================
 
-#Standard
+# Standard
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 import re
 
-#SKLearn
+# Scikit-Learn
 from sklearn import metrics
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 
-#NLTK
+# NLTK
 import nltk
 from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
 
-#Third party
+# Third party
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 
-#External Modules
-from module_data_path import df_data_path, plot_data_path, import_csv
+# External Modules
+from module_data_path import df_data_path, plot_data_path, catalog_data_path, import_csv, save_dataframe_to_csv
 from module_cleansing import clean_and_lowercase_columns, clean_and_lowercase_rows
+from module_tokenization import remove_stopwords, stem_row
 
-stages = [1]  # Define the stages to run
+# ====================================
+# Configuration
+# ====================================
 
-#Data Importing
+stages = [2]  # Define the stages to run
+
+start_col_index = 2  # Assuming the first two columns are not text (headliners or comments)
+
+# ====================================
+# Stage 1: Data importing, cleaning and preprocessing
+# ====================================
+
 def stage1(): 
-    # Data files directory path
+    """
+    Loads the data, cleans it by removing non-alphanumeric characters,
+    converts text to lowercase, and saves the cleaned CSV.
+    """   
+    # Get data and catalog paths
     data_path = df_data_path()
+    catalog_path = catalog_data_path()
 
-    # Load the headlines and comments data from CSV files
+    # Load the raw CSV data
     data_df = import_csv(data_path,'DATA_PRUEBA.csv')
 
-    # Clean and lowercase the headline text and all comment fields in the DataFrames
-    start_col_index = 2  # Assuming the first three columns are not comments
+    # Clean and lowercase text fields from start_col_index onwards
     data_df = data_df.apply(clean_and_lowercase_rows, axis=1, start_col_index=start_col_index)
 
-    # Preview the first 10 cleaned headlines and comments (optional)
-    print(data_df.iloc[:,start_col_index:].head(10))
+    # Optionally preview cleaned data
+    # print(data_df.iloc[:,start_col_index:].head(10))
+    
+    # Save cleaned data
+    save_dataframe_to_csv(data_df, catalog_path, 'cleaned_data')
         
-#Data Cleaning and Preprocessing
-def stage2(): 
-    print("Stage 2")
+# ====================================
+# Stage 2: Data tokenization
+# ====================================
 
+def stage2(): 
+    """
+    Loads the cleaned CSV, removes stopwords, applies stemming,
+    and saves the tokenized result as CSV.
+    """
+    # Get catalog path
+    catalog_path = catalog_data_path()
+    
+    # Load cleaned CSV
+    data_df = import_csv(catalog_path,'cleaned_data.csv')
+    
+    # Apply stopwords removal
+    data_df = data_df.apply(remove_stopwords, axis=1, start_col_index=start_col_index)
+    
+    # Apply stemming
+    data_df = data_df.apply(stem_row, axis=1, start_col_index=start_col_index)
+    
+    # Optionally preview tokenized data
+    # print(data_df.iloc[:,start_col_index:].head(10))
+    
+    # Save tokenized data
+    save_dataframe_to_csv(data_df, catalog_path, 'tokenized_data')
+    
+
+# ====================================
+# Main
+# ====================================
 
 if __name__ == "__main__":
 
