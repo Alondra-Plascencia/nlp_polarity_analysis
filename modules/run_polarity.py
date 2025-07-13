@@ -28,7 +28,7 @@ import torch
 from module_data_path import df_data_path, plot_data_path, catalog_data_path, import_csv, save_dataframe_to_csv
 from module_cleansing import clean_and_lowercase_columns, clean_and_lowercase_rows
 from module_tokenization import remove_stopwords, stem_row
-from module_polarization import generate_sentiment_summary_df
+from module_polarization import generate_sentiment_summary_df, generate_sentiment_summary_df_5categories
 
 # ====================================
 # Configuration
@@ -105,6 +105,7 @@ def stage3():
     # Load tokenized CSV
     data_df = import_csv(catalog_path,'tokenized_data.csv')
 
+    '''
     # df es tu DataFrame original con ID, Headline y comentarios
     summary_df = generate_sentiment_summary_df(data_df,
                                           id_col='ID',
@@ -116,6 +117,20 @@ def stage3():
     
     # Save sentiment results
     save_dataframe_to_csv(summary_df, catalog_path, 'polarized_data')
+
+    '''
+    # df es tu DataFrame original con ID, Headline y comentarios
+    summary_df_5 = generate_sentiment_summary_df_5categories(
+    data_df,
+    id_col='ID',
+    headline_col='Headliner',
+    start_col_index=3
+)
+    # Optionally preview sentiment summary with 5 categories
+    #print(summary_df.head(20))
+    
+    # Save sentiment results
+    save_dataframe_to_csv(summary_df_5, catalog_path, 'polarized_data_5categories')
 
 # ====================================
 # Main
