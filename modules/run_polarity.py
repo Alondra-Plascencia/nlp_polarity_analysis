@@ -29,12 +29,13 @@ from module_data_path import df_data_path, plot_data_path, catalog_data_path, im
 from module_cleansing import clean_and_lowercase_columns, clean_and_lowercase_rows
 from module_tokenization import remove_stopwords, stem_row
 from module_polarization import generate_sentiment_summary_df, generate_sentiment_summary_df_5categories
+from module_graphic import load_sentiment_results, compute_totals, plot_sentiment_pie_chart, compute_totals_5categories
 
 # ====================================
 # Configuration
 # ====================================
 
-stages = [3]  # Define the stages to run
+stages = [1]  # Define the stages to run
 
 start_col_index = 2  # Assuming the first two columns are not text (headliners or comments)
 
@@ -131,6 +132,38 @@ def stage3():
     
     # Save sentiment results
     save_dataframe_to_csv(summary_df_5, catalog_path, 'polarized_data_5categories')
+    
+# ====================================
+# Stage 4: Sentiment pie chart plotting
+# ====================================
+
+def stage4():
+    """
+    Loads the polarized data CSV, computes sentiment totals,
+    generates and saves a pie chart as PDF in the plots folder.
+    """
+    # Get paths
+    catalog_path = catalog_data_path()
+    plots_path = plot_data_path()
+    
+    # Load polarized sentiment CSV
+    csv_file = os.path.join(catalog_path, 'polarized_data_5categories.csv')
+    df = load_sentiment_results(csv_file)
+
+    # Compute totals
+    totals = compute_totals_5categories(df)
+
+    # Define chart parameters
+    labels = ['Negativo', 'Neutro', 'Positivo']
+    colors = ['red', 'gray', 'green']
+    title = 'Distribución de Sentimientos en Comentarios de Noticias'
+
+    # Compose full output path in plots folder
+    output_pdf = os.path.join(plots_path, 'sentiment_pie_chart.pdf')
+
+    # Generate and save pie chart
+    plot_sentiment_pie_chart(totals, labels, colors, title, output_pdf)
+
 
 # ====================================
 # Main
@@ -144,3 +177,5 @@ if __name__ == "__main__":
         stage2()
     elif 3 in stages:
         stage3()
+    elif 4 in stages:
+        stage4()
