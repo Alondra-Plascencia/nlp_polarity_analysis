@@ -154,9 +154,9 @@ def stage4():
     totals = compute_totals_5categories(df)
 
     # Define chart parameters
-    labels = ['Negativo', 'Neutro', 'Positivo']
+    labels = ['Negative', 'Neutral', 'Positive']
     colors = ['red', 'gray', 'green']
-    title = 'Distribución de Sentimientos en Comentarios de Noticias'
+    title = 'Tittle of the chart'
 
     # Compose full output path in plots folder
     output_pdf = os.path.join(plots_path, 'sentiment_pie_chart.pdf')
