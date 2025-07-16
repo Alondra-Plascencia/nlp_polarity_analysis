@@ -3,13 +3,13 @@ import torch
 import pandas as pd
 from module_cleansing import remove_non_alphabetic
 
-# This model could also be used, designed for Spanish only; it is lighter. (language = 'spanish')
-# This model only has 3 polarities.
+# This model is designed specifically for Spanish; it is lighter and faster.
+# It outputs only 3 polarities.
 model_name = "pysentimiento/robertuito-sentiment-analysis"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
-# Function to predict sentiment using the robertuito model
+# Function to predict sentiment using the RoBERTuito model
 def predict_sentiment_robertuito_model(text):
     inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
     with torch.no_grad():
@@ -21,45 +21,46 @@ def predict_sentiment_robertuito_model(text):
 def predict_sentiment_robertuito(row, start_col_index=2):
     for col in row.index[start_col_index:]:
         if pd.notna(row[col]):  # Check that the value is not NaN
-            # Apply transformations to non-NaN values
+            # Apply prediction only to non-NaN values
             row[col] = predict_sentiment_robertuito_model(str(row[col]))
     return row
 
 def generate_sentiment_summary_df(df, id_col='ID', headline_col='Headline', start_col_index=2):
     """
-    Crea un DataFrame con:
-    - columna ID
-    - columna Headline
-    - neg_count: número de comentarios negativos
-    - neu_count: número de comentarios neutros
-    - pos_count: número de comentarios positivos
+    Creates a summary DataFrame with:
+    - ID column
+    - Headline column
+    - neg_count: number of negative comments
+    - neu_count: number of neutral comments
+    - pos_count: number of positive comments
 
-    Parámetros:
-    - df: DataFrame original con columnas [ID, Headline, comentario1, comentario2, …]
-    - id_col: nombre de la columna de identificador
-    - headline_col: nombre de la columna de titulares
-    - start_col_index: índice de la primera columna de comentarios
+    Parameters:
+    - df: Original DataFrame with columns [ID, Headline, comment1, comment2, …]
+    - id_col: name of the ID column
+    - headline_col: name of the headline column
+    - start_col_index: index of the first comment column
     """
-    # 1) Predecir sentimientos en cada fila
+    # 1) Predict sentiment for each row
     sentiments = df.apply(lambda row: predict_sentiment_robertuito(row, start_col_index), axis=1)
 
-    # 2) Contar cada polaridad fila por fila
+    # 2) Count polarities for each row
     summary_rows = []
     for _, row in sentiments.iterrows():
         counts = row[row.index[start_col_index:]].value_counts()
         summary_rows.append({
-            id_col:            row[id_col],
-            headline_col:      row[headline_col],
-            'neg_count':       counts.get('NEG', 0),
-            'neu_count':       counts.get('NEU', 0),
-            'pos_count':       counts.get('POS', 0)
+            id_col:       row[id_col],
+            headline_col: row[headline_col],
+            'neg_count':  counts.get('NEG', 0),
+            'neu_count':  counts.get('NEU', 0),
+            'pos_count':  counts.get('POS', 0)
         })
 
-    # 3) Crear el DataFrame resumen
+    # 3) Create and return summary DataFrame
     return pd.DataFrame(summary_rows)
 
+
 # This model performs multilingual sentiment analysis and outputs one of five classes.
-# It is heavier than language-specific lightweight models.
+# It is heavier than lightweight language-specific models.
 model_name = "nlptown/bert-base-multilingual-uncased-sentiment"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSequenceClassification.from_pretrained(model_name)
@@ -71,7 +72,7 @@ def predict_sentiment(tokens):
     inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
     outputs = model(**inputs)
     sentiment = torch.argmax(outputs.logits, dim=1).item()
-    labels = ["Muy Negativo", "Negativo", "Neutro", "Positivo", "Muy Positivo"]
+    labels = ["Very Negative", "Negative", "Neutral", "Positive", "Very Positive"]
     return labels[sentiment]
 
 def generate_sentiment_summary_df_5categories(
@@ -81,57 +82,52 @@ def generate_sentiment_summary_df_5categories(
     start_col_index=2
 ):
     """
-    Crea un DataFrame resumen con:
+    Creates a summary DataFrame with:
       - ID
       - Headline
-      - muy_negativo_count: nº de comentarios 'Muy Negativo'
-      - negativo_count:     nº de comentarios 'Negativo'
-      - neutro_count:       nº de comentarios 'Neutro'
-      - positivo_count:     nº de comentarios 'Positivo'
-      - muy_positivo_count: nº de comentarios 'Muy Positivo'
+      - very_negative_count: number of 'Very Negative' comments
+      - negative_count:      number of 'Negative' comments
+      - neutral_count:       number of 'Neutral' comments
+      - positive_count:      number of 'Positive' comments
+      - very_positive_count: number of 'Very Positive' comments
     
-    Parámetros:
-      - df: DataFrame original con [ID, Headline, comentario1, comentario2, …]
-      - id_col: nombre de la columna de ID
-      - headline_col: nombre de la columna de titular
-      - start_col_index: índice (0-based) donde empiezan las columnas de comentarios
+    Parameters:
+      - df: Original DataFrame with [ID, Headline, comment1, comment2, …]
+      - id_col: name of the ID column
+      - headline_col: name of the headline column
+      - start_col_index: 0-based index where comment columns start
     """
-    import pandas as pd
-
-    # 1) Aplicar la predicción de sentimiento a cada celda de comentario
     df_sent = df.copy()
+
+    # 1) Apply sentiment prediction to each comment cell
     for col in df_sent.columns[start_col_index:]:
         df_sent[col] = df_sent[col].apply(
             lambda tokens: predict_sentiment(tokens) if pd.notna(tokens) else tokens
         )
 
-    # 2) Definir categorías y contarlas por fila
-    categories = ["Muy Negativo", "Negativo", "Neutro", "Positivo", "Muy Positivo"]
+    # 2) Define categories and count them per row
+    categories = ["Very Negative", "Negative", "Neutral", "Positive", "Very Positive"]
     summary_rows = []
     for _, row in df_sent.iterrows():
         counts = row.iloc[start_col_index:].value_counts()
-        # Construir fila de resumen
         summary_rows.append({
             id_col: row[id_col],
             headline_col: row[headline_col],
-            'muy_negativo_count': counts.get("Muy Negativo", 0),
-            'negativo_count':     counts.get("Negativo", 0),
-            'neutro_count':       counts.get("Neutro", 0),
-            'positivo_count':     counts.get("Positivo", 0),
-            'muy_positivo_count': counts.get("Muy Positivo", 0),
+            'very_negative_count': counts.get("Very Negative", 0),
+            'negative_count':      counts.get("Negative", 0),
+            'neutral_count':       counts.get("Neutral", 0),
+            'positive_count':      counts.get("Positive", 0),
+            'very_positive_count': counts.get("Very Positive", 0),
         })
 
-    # 3) Devolver DataFrame ordenado
+    # 3) Return ordered summary DataFrame
     cols = [
         id_col,
         headline_col,
-        'muy_negativo_count',
-        'negativo_count',
-        'neutro_count',
-        'positivo_count',
-        'muy_positivo_count'
+        'very_negative_count',
+        'negative_count',
+        'neutral_count',
+        'positive_count',
+        'very_positive_count'
     ]
     return pd.DataFrame(summary_rows, columns=cols)
-
-
-
