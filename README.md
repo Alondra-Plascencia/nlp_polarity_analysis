@@ -15,10 +15,26 @@ This project includes **two different pre-trained NLP models** for sentiment cla
 
 2. **Five-Category Model**  
    - More fine-grained and nuanced.  
-   - Classifies comments into five polarities: **Muy Negativo**, **Negativo**, **Neutro**, **Positivo**, and **Muy Positivo**.  
+   - Classifies comments into five polarities: **Very Negative**, **Negative**, **Neutral**, **Positive**, and **Very Positive**.  
    - Recommended for detailed analysis that captures subtle variations in sentiment.
 
 By providing both options, the pipeline offers flexibility for different research needs and levels of analysis detail. Users can choose the model best suited for their specific application or compare results across granularity levels.
+
+
+## Repository Structure
+```
+.
+├── catalog/      # Processed data files and outputs (e.g., cleaned and tokenized CSVs).
+├── data/         # Original data (.csv).
+├── environment/  # Conda environment configuration files.
+├── modules/      # Python modules and scripts. Main entry point: run_polarity.py
+├── notebooks/    # Jupyter notebooks for testing and experimentation.
+├── plots/        # Generated plots and visualizations.
+├── .gitignore    # Specifies files and folders to exclude from Git version control.
+└── README.md     # Project documentation and usage instructions.
+
+```
+
 
 ## Configuration: Pipeline Stages Description
 
@@ -70,10 +86,10 @@ This stage takes the tokenized data and performs automated sentiment analysis us
 
 3. **Saving Results**  
    - Generates a summary table aggregating sentiment predictions for each news item.
-   - Saves the results as `polarized_data_5categories.csv` in the catalog directory for further analysis.
+   - Saves the results as `polarized_data.csv` in the catalog directory for further analysis.
 
 **Input:** `tokenized_data.csv` (output from Stage 2)  
-**Output:** `polarized_data_5categories.csv` (sentiment labels per comment, aggregated by news item)
+**Output:** `polarized_data.csv` (sentiment labels per comment, aggregated by news item)
 
 
 ### Stage 4: Sentiment Pie Chart Plotting
@@ -81,7 +97,7 @@ This stage takes the tokenized data and performs automated sentiment analysis us
 This stage visualizes the aggregated sentiment data by creating a pie chart of sentiment distribution.
 
 1. **Load Polarized Data**  
-   Loads the `polarized_data_5categories.csv` file generated in Stage 3.
+   Loads the `polarized_data.csv` file generated in Stage 3.
 
 2. **Compute Sentiment Totals**  
    Calculates the total count of each sentiment category across all comments.
@@ -90,23 +106,9 @@ This stage visualizes the aggregated sentiment data by creating a pie chart of s
    - Creates a pie chart with customizable labels and colors to represent sentiment distribution.
    - Saves the chart as a PDF file in the `plots` directory for easy reporting or presentation.
 
-**Input:** `polarized_data_5categories.csv` (output from Stage 3)  
+**Input:** `polarized_data.csv` (output from Stage 3)  
 **Output:** `sentiment_pie_chart.pdf` (visual summary of sentiment distribution)
 
-
-## Repository Structure
-```
-.
-├── catalog/      # Processed data files and outputs (e.g., cleaned and tokenized CSVs).
-├── data/         # Original data (.csv).
-├── environment/  # Conda environment configuration files.
-├── modules/      # Python modules and scripts. Main entry point: run_polarity.py
-├── notebooks/    # Jupyter notebooks for testing and experimentation.
-├── plots/        # Generated plots and visualizations.
-├── .gitignore    # Specifies files and folders to exclude from Git version control.
-└── README.md     # Project documentation and usage instructions.
-
-```
 
 ## Conda environment setup
 
@@ -177,7 +179,6 @@ stages = [1] will only run Stage 1 (data importing - cleaning).
 stages = [2] will only run Stage 2 (tokenization).
 stages = [3] will only run Stage 3 (sentiment analysis).
 stages = [4] will only run Stage 4 (sentiment pie chart).
-stages = [1, 2, 3, 4] will run all stages sequentially.
 ```
 
 ## Acknowledgements
